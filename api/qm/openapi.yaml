@@ -1,0 +1,215 @@
+openapi: 3.0.3
+info:
+  title: Quality Module
+  version: "1.0.0"
+  description: Find out more about the Quality module
+servers:
+  - url: http://localhost/qm
+    description: "Local server"
+tags:
+  - name: Issue
+    description: Operations related to the Issue endpoint
+
+paths:
+  /itr:
+    post:
+      description: Creates a new Issue
+      operationId: CreateIssue
+      requestBody:
+        description: Issue data to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIssueRequest"
+      responses:
+        "201":
+          description: Issue created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      description: Get all Issues
+      operationId: GetAllIssues
+      parameters:
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Returns all issues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Issue"
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /itr/{issueId}:
+    parameters:
+      - in: path
+        name: issueId
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      description: Updates the given Issue
+      operationId: UpdateIssueById
+      requestBody:
+        description: Issue data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIssueRequest"
+      responses:
+        "200":
+          description: Issue updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      description: Gets an Issue by ID
+      operationId: GetIssueById
+      tags: [Issue]
+      responses:
+        "200":
+          description: Returns the Issue by ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      description: Deletes an Issue by ID
+      operationId: DeleteIssueById
+      tags: [Issue]
+      responses:
+        "200":
+          description: Issue deleted successfully
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Issue:
+      allOf:
+        - $ref: "#/components/schemas/IssueBase"
+        - properties:
+            _id:
+              title: Issue ID
+              pattern: ^[a-f\d]{24}$
+              example: 507f1f77bcf86cd799439011
+              description: A 24 character hexadecimal unique material Identifier.
+              x-go-type: primitive.ObjectID
+              x-go-type-import:
+                path: "go.mongodb.org/mongo-driver/bson/primitive"
+              x-oapi-codegen-extra-tags:
+                bson: _id,omitempty
+                json: _id,omitempty
+
+    IssueBase:
+      type: object
+      properties:
+        description:
+          type: string
+          description: indicates the description about the issue
+          x-oapi-codegen-extra-tags:
+            bson: description,omitempty
+            json: description,omitempty
+        name:
+          type: string
+          description: indicates the name of the issue
+          maxLength: 500
+          x-oapi-codegen-extra-tags:
+            bson: name,omitempty
+            json: name,omitempty
+        impact:
+          type: string
+          maxLength: 5000
+          x-oapi-codegen-extra-tags:
+            bson: impact,omitempty
+            json: impact,omitempty
+        action:
+          type: string
+          maxLength: 5000
+          x-oapi-codegen-extra-tags:
+            bson: action,omitempty
+            json: action,omitempty
+        change_req:
+          type: boolean
+          x-oapi-codegen-extra-tags:
+            bson: change_req,omitempty
+            json: change_req,omitempty
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    CreateIssueRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+    UpdateIssueRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+  parameters:
+    PageNumber:
+      name: page
+      in: query
+      description: Page number
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
