@@ -1,0 +1,22 @@
+name: Sync OpenAPI with Postman
+on:
+  push:
+    paths:
+      - "./api/qm/openapi.yaml"
+    branches:
+      - master
+
+jobs:
+  update_postman_collection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install  
+       
+      - name: Run update script
+        run: ./scripts/update-postman
+        
+         

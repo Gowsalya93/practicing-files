@@ -153,6 +153,13 @@ components:
           x-oapi-codegen-extra-tags:
             bson: name,omitempty
             json: name,omitempty
+        Quality:
+          type: string
+          description: indicates the name of the issue
+          maxLength: 500
+          x-oapi-codegen-extra-tags:
+            bson: quality,omitempty
+            json: quality,omitempty
         impact:
           type: string
           maxLength: 5000
